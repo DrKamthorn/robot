@@ -1,6 +1,6 @@
-
 import openai
 import gradio as gr
+import asyncio
 
 openai.api_key = "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"
 
@@ -12,16 +12,17 @@ def chatbot(input):
     if input:
         messages.append({"role": "user", "content": input})
         chat = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo", messages=messages
+            model="gpt-3.5-turbo", messages=messages, api_key=openai.api_key
         )
         reply = chat.choices[0].message.content
         messages.append({"role": "assistant", "content": reply})
         return reply
 
-inputs = gr.inputs.Textbox(lines=7, label="Chat with AI")
-outputs = gr.outputs.Textbox(label="Reply")
+async def main():
+    iface = gr.Interface(fn=chatbot, inputs="textbox", outputs="textbox", title="AI Chatbot",
+                         description="Ask anything you want", theme="compact")
+    iface.launch()
 
-iface = gr.Interface(fn=chatbot, inputs=inputs, outputs=outputs, title="AI Chatbot",
-                     description="Ask anything you want", theme="compact")
-
-iface.launch(share=True)
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
